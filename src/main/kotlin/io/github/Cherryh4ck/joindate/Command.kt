@@ -6,10 +6,8 @@ import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
-import org.bukkit.scheduler.BukkitScheduler
 
 import net.kyori.adventure.text.minimessage.MiniMessage
-import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit.getOfflinePlayer
 
 import java.text.SimpleDateFormat
@@ -30,8 +28,10 @@ class Command(private val plugin: Plugin) : CommandExecutor {
 
             Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
                 val offlineplayer = getOfflinePlayer(targetUser)
+
+                val isSpanish = userLocale.startsWith("es")
                 if (!offlineplayer.hasPlayedBefore() && !offlineplayer.isOnline){
-                    val message = if (userLocale.startsWith("es")){
+                    val message = if (isSpanish){
                         minimessage.deserialize("<red>${offlineplayer.name} nunca entró al servidor.</red>")
                     }
                     else{
@@ -43,10 +43,10 @@ class Command(private val plugin: Plugin) : CommandExecutor {
                 }
 
                 val unixTime = offlineplayer.firstPlayed
-                val format = SimpleDateFormat("dd/MM/yyyy HH:mm")
+                val format = if (isSpanish) { SimpleDateFormat("dd/MM/yyyy HH:mm") } else { SimpleDateFormat("MM/dd/yyyy hh:mm a") }
                 val result = format.format(Date(unixTime))
 
-                val message = if (userLocale.startsWith("es")){
+                val message = if (isSpanish){
                     minimessage.deserialize("<gold>${offlineplayer.name} se unió al servidor el <bold>${result}</bold>.</gold>")
                 }
                 else{
@@ -57,7 +57,7 @@ class Command(private val plugin: Plugin) : CommandExecutor {
             })
         }
         else{
-            return false;
+            return false
         }
 
         return true
