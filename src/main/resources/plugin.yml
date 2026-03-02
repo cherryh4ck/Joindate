@@ -1,0 +1,11 @@
+name: Joindate
+version: '1.0-SNAPSHOT'
+main: io.github.Cherryh4ck.joindate.Joindate
+api-version: '1.21'
+commands:
+  joindate:
+    description: "Shows player's joindate"
+    usage: /joindate
+  jd:
+    description: "Shows player's joindate"
+    usage: /jd
