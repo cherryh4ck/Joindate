@@ -1,11 +1,15 @@
 name: Joindate
-version: '1.0-SNAPSHOT'
+version: '1.0'
+description: Simple and lightweight joindate plugin.
+author: Cherryh4ck
 main: io.github.Cherryh4ck.joindate.Joindate
 api-version: '1.21'
 commands:
   joindate:
     description: "Shows player's joindate"
     usage: /joindate
-  jd:
-    description: "Shows player's joindate"
-    usage: /jd
+    aliases: jd
+  simplejd:
+    description: "Plugin info & main command"
+    usage: /simplejd
+    permission: simplejd.main

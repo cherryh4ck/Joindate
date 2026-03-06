@@ -1,0 +1,21 @@
+# Simple Joindate, made by Cherryh4ck
+# This is the configuration file for the plugin.
+
+# --- Variables ---
+# Use alternative format? If set to false, MM/dd/yyyy is used. If set to true, dd/MM/yyyy is used.
+alternative-format: false
+
+# --- Messages ---
+# Uses MiniMessage formatting.
+
+# /simplejd messages
+plugin-info: "<gold>SimpleJD - Running on <bold>v%version%</bold>.</gold>"
+reload-message: "<gold>Plugin config has been reloaded.</gold>"
+command-doesnt-exist: "<red>This argument doesn't exist.</red>"
+
+# /joindate - /jd messages
+console-arguments-error: "<red>You cannot use this command without putting a username first.</red>"
+never-entered: "<red>%player% has never entered the server.</red>"
+invalid-name: "<red>%player% is not a valid username.</red>"
+join-date: "<gold>%player% joined the server on <bold>%date%</bold>.</gold>"
+

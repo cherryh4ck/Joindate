@@ -17,48 +17,46 @@ class Command(private val plugin: Plugin) : CommandExecutor {
     val minimessage = MiniMessage.miniMessage()
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
-        if (sender is Player){
-            val userLocale = sender.locale().toString()
+        if (sender !is Player && args.isEmpty()) {
+            val message: String = plugin.config.getString("console-arguments-error") ?: "<red>'console-arguments-error' is invalid. This is a config error.</red>"
+            sender.sendMessage(minimessage.deserialize(message))
+            return true
+        }
 
-            val targetUser = if (args.isEmpty()) {
-                sender.name
-            } else{
-                args[0]
+        val targetUser = if (args.isEmpty()) {
+            sender.name
+        } else{
+            args[0]
+        }
+
+        if (targetUser.length !in 3..16) {
+            var message: String = plugin.config.getString("invalid-name") ?: "<red>'invalid-name' is invalid. This is a config error.</red>"
+            message = message.replace("%player%", targetUser)
+            sender.sendMessage(minimessage.deserialize(message))
+            return true
+        }
+
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
+            val offlineplayer = getOfflinePlayer(targetUser)
+
+            if (!offlineplayer.hasPlayedBefore() && !offlineplayer.isOnline){
+                var message: String = plugin.config.getString("never-entered") ?: "<red>'never-entered' is invalid. This is a config error.</red>"
+                message = message.replace("%player%", targetUser)
+
+                sender.sendMessage(minimessage.deserialize(message))
+                return@Runnable
             }
 
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
-                val offlineplayer = getOfflinePlayer(targetUser)
+            val unixTime = offlineplayer.firstPlayed
+            val format = if (plugin.config.getBoolean("alternative-format")) { SimpleDateFormat("dd/MM/yyyy HH:mm") } else { SimpleDateFormat("MM/dd/yyyy hh:mm a") }
+            val result = format.format(Date(unixTime))
 
-                val isSpanish = userLocale.startsWith("es")
-                if (!offlineplayer.hasPlayedBefore() && !offlineplayer.isOnline){
-                    val message = if (isSpanish){
-                        minimessage.deserialize("<red>${offlineplayer.name} nunca entró al servidor.</red>")
-                    }
-                    else{
-                        minimessage.deserialize("<red>${offlineplayer.name} has never entered the server.</red>")
-                    }
+            var message: String = plugin.config.getString("join-date") ?: "<red>'join-date' is invalid. This is a config error.</red>"
+            message = message.replace("%player%", targetUser)
+            message = message.replace("%date%", result)
 
-                    sender.sendMessage(message)
-                    return@Runnable
-                }
-
-                val unixTime = offlineplayer.firstPlayed
-                val format = if (isSpanish) { SimpleDateFormat("dd/MM/yyyy HH:mm") } else { SimpleDateFormat("MM/dd/yyyy hh:mm a") }
-                val result = format.format(Date(unixTime))
-
-                val message = if (isSpanish){
-                    minimessage.deserialize("<gold>${offlineplayer.name} se unió al servidor el <bold>${result}</bold>.</gold>")
-                }
-                else{
-                    minimessage.deserialize("<gold>${offlineplayer.name} joined the server on <bold>${result}</bold>.</gold>")
-                }
-
-                sender.sendMessage(message)
-            })
-        }
-        else{
-            return false
-        }
+            sender.sendMessage(minimessage.deserialize(message))
+        })
 
         return true
     }
