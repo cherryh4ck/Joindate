@@ -2,20 +2,31 @@ package io.github.Cherryh4ck.joindate
 
 import net.kyori.adventure.text.minimessage.MiniMessage
 import org.bukkit.command.CommandSender
+import org.bukkit.event.HandlerList
 import org.bukkit.plugin.java.JavaPlugin
+import java.io.File
 
 class Joindate : JavaPlugin() {
     val minimessage = MiniMessage.miniMessage()
+    val playerDataPath = File(dataFolder, "playerdata")
+
+    private var cacheListener: CacheJoinListener? = null
 
     override fun onEnable() {
         saveDefaultConfig()
-
-        logger.info("Plugin activated.")
+        if (!playerDataPath.exists()) {
+            logger.info("Playerdata folder created.")
+            playerDataPath.mkdirs()
+        }
 
         val simplejd = getCommand("simplejd")
 
         getCommand("joindate")?.setExecutor(Command(this))
         getCommand("jd")?.setExecutor(Command(this))
+
+        hookListeners()
+
+        logger.info("Plugin activated.")
 
         simplejd?.setExecutor(this)
         simplejd?.tabCompleter = this
@@ -23,6 +34,27 @@ class Joindate : JavaPlugin() {
 
     override fun onDisable() {
         // Plugin shutdown logic
+    }
+
+    fun hookListeners(){
+        if (config.getBoolean("use-cache-system")){
+            if (cacheListener == null){
+                cacheListener = CacheJoinListener(this)
+                server.pluginManager.registerEvents(cacheListener!!, this)
+                logger.info("Successfully hooked the cache listener.")
+            }
+        }
+        else{
+            unhookListeners()
+            logger.info("Cache listener is disabled (config.yml).")
+        }
+    }
+
+    fun unhookListeners() {
+        cacheListener?.let {
+            HandlerList.unregisterAll(it)
+            cacheListener = null
+        }
     }
 
     override fun onCommand(sender: CommandSender, command: org.bukkit.command.Command, label: String, args: Array<out String>): Boolean {
@@ -35,8 +67,10 @@ class Joindate : JavaPlugin() {
         }
 
         when (args[0].lowercase()) {
-            "reload" ->{
+            "reload" -> {
                 reloadConfig()
+                unhookListeners()
+                hookListeners()
                 mensaje = config.getString("reload-message") ?: "<red>'reload-message' is invalid. This is a config error.</red>"
                 sender.sendMessage(minimessage.deserialize(mensaje))
             }

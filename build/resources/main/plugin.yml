@@ -1,6 +1,6 @@
 name: Joindate
-version: '1.0'
-description: Simple and lightweight joindate plugin.
+version: '1.1'
+description: Simple and lightweight joindate plugin with cache system.
 author: Cherryh4ck
 main: io.github.Cherryh4ck.joindate.Joindate
 api-version: '1.21'

@@ -5,15 +5,15 @@ import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
-import org.bukkit.plugin.Plugin
 
 import net.kyori.adventure.text.minimessage.MiniMessage
-import org.bukkit.Bukkit.getOfflinePlayer
+import org.bukkit.configuration.file.YamlConfiguration
+import java.io.File
 
 import java.text.SimpleDateFormat
 import java.util.Date
 
-class Command(private val plugin: Plugin) : CommandExecutor {
+class Command(private val plugin: Joindate) : CommandExecutor {
     val minimessage = MiniMessage.miniMessage()
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
@@ -37,7 +37,15 @@ class Command(private val plugin: Plugin) : CommandExecutor {
         }
 
         Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
-            val offlineplayer = getOfflinePlayer(targetUser)
+            val uuidData = File(plugin.playerDataPath, "${targetUser}.yml")
+            val offlineplayer = if (!uuidData.exists()) {
+                Bukkit.getOfflinePlayer(targetUser)
+            }
+            else{
+                val config = YamlConfiguration.loadConfiguration(uuidData)
+                val uuid = java.util.UUID.fromString(config.getString("uuid"))
+                Bukkit.getOfflinePlayer(uuid)
+            }
 
             if (!offlineplayer.hasPlayedBefore() && !offlineplayer.isOnline){
                 var message: String = plugin.config.getString("never-entered") ?: "<red>'never-entered' is invalid. This is a config error.</red>"

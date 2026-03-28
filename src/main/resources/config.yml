@@ -4,6 +4,10 @@
 # --- Variables ---
 # Use alternative format? If set to false, MM/dd/yyyy is used. If set to true, dd/MM/yyyy is used.
 alternative-format: false
+# Use cache system? This fixes a big problem in cracked servers with premium UUID support, where the getOfflinePlayer() function returns no UUID if the premium player is offline.
+use-cache-system: true
+# Log cache creations & updates? Only for debug!
+log-cache: false
 
 # --- Messages ---
 # Uses MiniMessage formatting.
@@ -15,7 +19,9 @@ command-doesnt-exist: "<red>This argument doesn't exist.</red>"
 
 # /joindate - /jd messages
 console-arguments-error: "<red>You cannot use this command without putting a username first.</red>"
-never-entered: "<red>%player% has never entered the server.</red>"
+never-entered: "<red>%player% has never entered the server or is not in the cache.</red>"
 invalid-name: "<red>%player% is not a valid username.</red>"
 join-date: "<gold>%player% joined the server on <bold>%date%</bold>.</gold>"
 
+# Cache log system messages
+log-creation: "UUID has been created or updated for %player%."
