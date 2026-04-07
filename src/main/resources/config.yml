@@ -2,6 +2,9 @@
 # This is the configuration file for the plugin.
 
 # --- Variables ---
+# Username check regex - do not change unless your server allows cracked players without username validation
+# If you want to support Bedrock players whose username start with a '.', then use the next regex: "^[a-zA-Z0-9_.]{3,16}$"
+username-regex: "^[a-zA-Z0-9_]{3,16}$"
 # Use alternative format? If set to false, MM/dd/yyyy is used. If set to true, dd/MM/yyyy is used.
 alternative-format: false
 # Use cache system? This fixes a big problem in cracked servers with premium UUID support, where the getOfflinePlayer() function returns no UUID if the premium player is offline.
@@ -22,6 +25,7 @@ console-arguments-error: "<red>You cannot use this command without putting a use
 never-entered: "<red>%player% has never entered the server or is not in the cache.</red>"
 invalid-name: "<red>%player% is not a valid username.</red>"
 join-date: "<gold>%player% joined the server on <bold>%date%</bold>.</gold>"
+same-username: "<gold>You joined the server on <bold>%date%</bold>.</gold>"
 
 # Cache log system messages
 log-creation: "UUID has been created or updated for %player%."

@@ -22,9 +22,8 @@ class CacheJoinListener(private val plugin : Joindate) : Listener {
                 config.set("uuid", player.uniqueId.toString())
                 try {
                     config.save(playerData)
-                    if (plugin.config.getBoolean("log-cache")){
-                        var message: String = plugin.config.getString("log-creation") ?: "<red>'log-creation' is invalid. This is a config error.</red>"
-                        message = message.replace("%player%", player.name)
+                    if (plugin.logCreationEnabled){
+                        val message = plugin.logCreation.replace("%player%", player.name)
                         plugin.logger.info(message)
                     }
                 } catch (ex: Exception) {

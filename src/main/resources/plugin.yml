@@ -1,5 +1,5 @@
 name: Joindate
-version: '1.1'
+version: '1.2'
 description: Simple and lightweight joindate plugin with cache system.
 author: Cherryh4ck
 main: io.github.Cherryh4ck.joindate.Joindate

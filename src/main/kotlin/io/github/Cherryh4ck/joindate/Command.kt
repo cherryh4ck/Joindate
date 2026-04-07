@@ -2,24 +2,28 @@ package io.github.Cherryh4ck.joindate
 
 import org.bukkit.Bukkit
 import org.bukkit.command.Command
-import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
 import net.kyori.adventure.text.minimessage.MiniMessage
+import org.bukkit.command.TabExecutor
 import org.bukkit.configuration.file.YamlConfiguration
 import java.io.File
 
 import java.text.SimpleDateFormat
 import java.util.Date
 
-class Command(private val plugin: Joindate) : CommandExecutor {
+class Command(private val plugin: Joindate) : TabExecutor {
     val minimessage = MiniMessage.miniMessage()
+
+    fun validateUsername(username: String): Boolean {
+        val regex = Regex(plugin.usernameRegex)
+        return regex.matches(username)
+    }
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
         if (sender !is Player && args.isEmpty()) {
-            val message: String = plugin.config.getString("console-arguments-error") ?: "<red>'console-arguments-error' is invalid. This is a config error.</red>"
-            sender.sendMessage(minimessage.deserialize(message))
+            sender.sendMessage(minimessage.deserialize(plugin.consoleError))
             return true
         }
 
@@ -29,9 +33,8 @@ class Command(private val plugin: Joindate) : CommandExecutor {
             args[0]
         }
 
-        if (targetUser.length !in 3..16) {
-            var message: String = plugin.config.getString("invalid-name") ?: "<red>'invalid-name' is invalid. This is a config error.</red>"
-            message = message.replace("%player%", targetUser)
+        if (!validateUsername(targetUser)) {
+            val message = plugin.invalidName.replace("%player%", targetUser)
             sender.sendMessage(minimessage.deserialize(message))
             return true
         }
@@ -48,18 +51,25 @@ class Command(private val plugin: Joindate) : CommandExecutor {
             }
 
             if (!offlineplayer.hasPlayedBefore() && !offlineplayer.isOnline){
-                var message: String = plugin.config.getString("never-entered") ?: "<red>'never-entered' is invalid. This is a config error.</red>"
-                message = message.replace("%player%", targetUser)
-
+                val message = plugin.neverEntered.replace("%player%", targetUser)
                 sender.sendMessage(minimessage.deserialize(message))
                 return@Runnable
             }
 
             val unixTime = offlineplayer.firstPlayed
-            val format = if (plugin.config.getBoolean("alternative-format")) { SimpleDateFormat("dd/MM/yyyy HH:mm") } else { SimpleDateFormat("MM/dd/yyyy hh:mm a") }
+            val format = if (plugin.alternativeFormat) {
+                SimpleDateFormat("dd/MM/yyyy HH:mm") }
+            else {
+                SimpleDateFormat("MM/dd/yyyy hh:mm a")
+            }
             val result = format.format(Date(unixTime))
 
-            var message: String = plugin.config.getString("join-date") ?: "<red>'join-date' is invalid. This is a config error.</red>"
+            var message: String = if (targetUser != sender.name){
+                plugin.joinDate
+            }
+            else{
+                plugin.sameUsername
+            }
             message = message.replace("%player%", targetUser)
             message = message.replace("%date%", result)
 
@@ -67,5 +77,16 @@ class Command(private val plugin: Joindate) : CommandExecutor {
         })
 
         return true
+    }
+
+    override fun onTabComplete(sender: CommandSender, command: Command, alias: String, args: Array<out String>): List<String>? {
+        return if (args.size == 1){
+            Bukkit.getOnlinePlayers()
+                .map { it.name }
+                .filter { it.startsWith(args[0], ignoreCase = true) }
+        }
+        else{
+            emptyList()
+        }
     }
 }

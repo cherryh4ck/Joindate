@@ -10,6 +10,22 @@ class Joindate : JavaPlugin() {
     val minimessage = MiniMessage.miniMessage()
     val playerDataPath = File(dataFolder, "playerdata")
 
+    var pluginInfo = config.getString("plugin-info") ?: "<red>'plugin-info' is invalid. This is a config error.</red>"
+    var reloadMessage = config.getString("reload-message") ?: "<red>'reload-message' is invalid. This is a config error.</red>"
+    var incorrectCommand = config.getString("command-doesnt-exist") ?: "<red>'command-doesnt-exist' is invalid. This is a config error.</red>"
+
+    var usernameRegex = config.getString("username-regex") ?: "^[a-zA-Z0-9_]{3,16}\$"
+
+    var consoleError = config.getString("console-arguments-error") ?: "<red>'console-arguments-error' is invalid. This is a config error.</red>"
+    var invalidName = config.getString("invalid-name") ?: "<red>'invalid-name' is invalid. This is a config error.</red>"
+    var neverEntered = config.getString("never-entered") ?: "<red>'never-entered' is invalid. This is a config error.</red>"
+    var alternativeFormat = config.getBoolean("alternative-format")
+    var joinDate = config.getString("join-date") ?: "<red>'join-date' is invalid. This is a config error.</red>"
+    var sameUsername = config.getString("same-username") ?: "<red>'same-username' is invalid. This is a config error.</red>"
+
+    var logCreationEnabled = config.getBoolean("log-cache")
+    var logCreation = config.getString("log-creation") ?: "<red>'log-creation' is invalid. This is a config error.</red>"
+
     private var cacheListener: CacheJoinListener? = null
 
     override fun onEnable() {
@@ -36,6 +52,24 @@ class Joindate : JavaPlugin() {
         // Plugin shutdown logic
     }
 
+    fun reloadVariables(){
+        pluginInfo = config.getString("plugin-info") ?: "<red>'plugin-info' is invalid. This is a config error.</red>"
+        reloadMessage = config.getString("reload-message") ?: "<red>'reload-message' is invalid. This is a config error.</red>"
+        incorrectCommand = config.getString("command-doesnt-exist") ?: "<red>'command-doesnt-exist' is invalid. This is a config error.</red>"
+
+        usernameRegex = config.getString("username-regex") ?: "^[a-zA-Z0-9_]{3,16}\$"
+
+        consoleError = config.getString("console-arguments-error") ?: "<red>'console-arguments-error' is invalid. This is a config error.</red>"
+        invalidName = config.getString("invalid-name") ?: "<red>'invalid-name' is invalid. This is a config error.</red>"
+        neverEntered = config.getString("never-entered") ?: "<red>'never-entered' is invalid. This is a config error.</red>"
+        alternativeFormat = config.getBoolean("alternative-format")
+        joinDate = config.getString("join-date") ?: "<red>'join-date' is invalid. This is a config error.</red>"
+        sameUsername = config.getString("same-username") ?: "<red>'same-username' is invalid. This is a config error.</red>"
+
+        logCreationEnabled = config.getBoolean("log-cache")
+        logCreation = config.getString("log-creation") ?: "<red>'log-creation' is invalid. This is a config error.</red>"
+    }
+
     fun hookListeners(){
         if (config.getBoolean("use-cache-system")){
             if (cacheListener == null){
@@ -58,25 +92,22 @@ class Joindate : JavaPlugin() {
     }
 
     override fun onCommand(sender: CommandSender, command: org.bukkit.command.Command, label: String, args: Array<out String>): Boolean {
-        var mensaje : String
         if(args.isEmpty()){
-            mensaje = config.getString("plugin-info") ?: "<red>'plugin-info' is invalid. This is a config error.</red>"
-            mensaje = mensaje.replace("%version%", this.pluginMeta.version)
-            sender.sendMessage(minimessage.deserialize(mensaje))
+            val message = pluginInfo.replace("%version%", this.pluginMeta.version)
+            sender.sendMessage(minimessage.deserialize(message))
             return true
         }
 
         when (args[0].lowercase()) {
             "reload" -> {
                 reloadConfig()
+                reloadVariables()
                 unhookListeners()
                 hookListeners()
-                mensaje = config.getString("reload-message") ?: "<red>'reload-message' is invalid. This is a config error.</red>"
-                sender.sendMessage(minimessage.deserialize(mensaje))
+                sender.sendMessage(minimessage.deserialize(reloadMessage))
             }
             else ->{
-                mensaje = config.getString("command-doesnt-exist") ?: "<red>'command-doesnt-exist' is invalid. This is a config error.</red>"
-                sender.sendMessage(minimessage.deserialize(mensaje))
+                sender.sendMessage(minimessage.deserialize(incorrectCommand))
             }
         }
 
